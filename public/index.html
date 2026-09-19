@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PENYIMPANAN KITA❤️</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;600&family=Sacramento&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root { --bg-dark: #030204; }
+        body { background-color: var(--bg-dark); color: #E2E8F0; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; margin: 0; user-select: none; }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-serif-custom { font-family: 'Playfair Display', serif; }
+        .gold-gradient-text { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .glass-card { background: rgba(14, 13, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 15px 50px 0 rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(212, 175, 55, 0.08); transition: all 0.4s ease; }
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+        .butterfly-container { position: relative; width: 80px; height: 80px; cursor: pointer; transform-style: preserve-3d; perspective: 500px; }
+        .wing { position: absolute; top: 0; width: 40px; height: 80px; background: radial-gradient(ellipse at center, #FFD700 0%, #D4AF37 60%, #AA771C 100%); box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); opacity: 0.9; }
+        .wing.left { left: 0; transform-origin: right center; animation: flap-left 0.4s infinite alternate ease-in-out; border-radius: 50% 10% 80% 20%; }
+        .wing.right { right: 0; transform-origin: left center; animation: flap-right 0.4s infinite alternate ease-in-out; border-radius: 10% 50% 20% 80%; }
+        @keyframes flap-left { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(70deg); } }
+        @keyframes flap-right { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(-70deg); } }
+        .file-upload-label { display: flex; align-items: center; justify-content: center; border: 2px dashed rgba(212, 175, 55, 0.5); background: rgba(0,0,0,0.5); border-radius: 1rem; padding: 20px; cursor: pointer; transition: all 0.3s; }
+        .file-upload-label:hover { border-color: #FFD700; background: rgba(212, 175, 55, 0.1); }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #030204; } ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <canvas id="particle-canvas"></canvas>
+    <audio id="bgm" loop preload="auto"><source src= mirrorball.mp3 type="audio/mpeg"></audio>
+
+    <div id="music-control" class="fixed top-6 right-6 z-50 hidden">
+        <button onclick="toggleMusic()" class="glass-card p-3 rounded-full text-amber-400 hover:text-amber-200 w-12 h-12"><i id="music-icon" class="fas fa-music text-lg"></i></button>
+    </div>
+
+    <!-- INTRO SCREEN -->
+    <section id="intro-screen" class="relative w-full h-screen flex flex-col items-center justify-center z-50 bg-[#030204]">
+        <div class="text-center mb-12">
+            <h1 class="font-cinzel text-3xl md:text-5xl gold-gradient-text tracking-widest mb-3 uppercase">Penyimpanan Momen Kita</h1>
+            <p class="font-serif-custom italic text-gray-400 text-sm md:text-lg">"Sentuh kupu-kupu ini untuk terbang melintasi waktu..."</p>
+        </div>
+        <div id="intro-butterfly" class="butterfly-container" onclick="startIntro()"><div class="wing left"></div><div class="wing right"></div></div>
+    </section>
+
+    <!-- MAIN SCREEN -->
+    <main id="main-screen" class="hidden min-h-screen relative z-10 pb-20">
+        <section class="py-24 px-6 max-w-5xl mx-auto text-center">
+            <h1 class="font-cinzel text-4xl md:text-7xl font-bold gold-gradient-text mb-6">Our Chronicle</h1>
+            <p class="font-serif-custom text-lg md:text-2xl italic text-gray-300 max-w-2xl mx-auto">"Our Met Is A Tragedy But Our Love is Destiny."</p>
+            <div class="mt-12 glass-card p-6 md:p-8 rounded-3xl max-w-3xl mx-auto">
+                <h3 class="font-cinzel text-amber-400 text-sm uppercase tracking-widest mb-6">HITUNGAN WAKTU DARI CONFESS KU</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="p-4 bg-black/60 rounded-2xl border border-amber-500/20"><span id="counter-days" class="text-3xl md:text-4xl font-bold text-amber-300 font-cinzel">0</span><p class="text-xs text-gray-400 uppercase mt-2">Hari</p></div>
+                    <div class="p-4 bg-black/60 rounded-2xl border border-amber-500/20"><span id="counter-hours" class="text-3xl md:text-4xl font-bold text-amber-300 font-cinzel">0</span><p class="text-xs text-gray-400 uppercase mt-2">Jam</p></div>
+                    <div class="p-4 bg-black/60 rounded-2xl border border-amber-500/20"><span id="counter-minutes" class="text-3xl md:text-4xl font-bold text-amber-300 font-cinzel">0</span><p class="text-xs text-gray-400 uppercase mt-2">Menit</p></div>
+                    <div class="p-4 bg-black/60 rounded-2xl border border-amber-500/20"><span id="counter-seconds" class="text-3xl md:text-4xl font-bold text-amber-300 font-cinzel">0</span><p class="text-xs text-gray-400 uppercase mt-2">Detik</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Galeri -->
+        <section class="py-12 px-6 max-w-6xl mx-auto border-t border-amber-500/20">
+            <div class="text-center mb-10">
+                <h2 class="font-cinzel text-3xl md:text-5xl gold-gradient-text mb-3">Album Kenangan</h2>
+                <p class="font-serif-custom text-gray-300 italic">"Simpan memori indah kita di sini."</p>
+            </div>
+            <div class="glass-card p-6 rounded-3xl mb-12 max-w-2xl mx-auto">
+                <label for="media-file" class="file-upload-label mb-4">
+                    <div class="text-center">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-amber-400 mb-2"></i>
+                        <p class="text-amber-200 font-cinzel">Pilih Foto atau Video</p>
+                        <p class="text-xs text-gray-400 mt-2">*Akan tersimpan langsung di hati kita</p>
+                    </div>
+                    <input type="file" id="media-file" accept="image/*,video/*" class="hidden" onchange="handleFileSelect(event)">
+                </label>
+                <div id="upload-details" class="hidden">
+                    <p id="file-name-preview" class="text-xs text-gray-400 mb-3 text-center"></p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <input type="text" id="media-title" placeholder="Judul (Cth: Momen Lucu)" class="bg-black/70 border border-amber-500/40 rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none">
+                        <input type="text" id="media-desc" placeholder="Deskripsi Singkat..." class="bg-black/70 border border-amber-500/40 rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none">
+                    </div>
+                    <button onclick="saveMediaToGallery()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-500 text-black font-cinzel font-bold tracking-wider hover:opacity-90">Simpan ke Album</button>
+                </div>
+            </div>
+            <div id="media-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+        </section>
+
+        <section class="py-24 px-6 text-center relative overflow-hidden border-t border-amber-500/20">
+            <h3 class="font-cinzel text-3xl gold-gradient-text mb-8">Terbang ke Masa Depan</h3>
+            <div id="closing-butterfly" class="butterfly-container mx-auto" onclick="startClosingTransition()"><div class="wing left"></div><div class="wing right"></div></div>
+            <p class="text-xs text-amber-400/80 uppercase font-cinzel tracking-widest mt-6 animate-pulse">Sentuh Kupu-Kupu Ini</p>
+        </section>
+    </main>
+
+    <!-- CLOSING SCREEN -->
+    <section id="closing-screen" class="hidden min-h-screen w-full relative z-20 flex items-center justify-center bg-[#030204] p-6 text-center">
+        <div class="max-w-2xl glass-card p-8 md:p-12 rounded-3xl">
+            <div class="text-amber-400 text-4xl mb-4"><i class="fas fa-infinity"></i></div>
+            <h2 class="font-cinzel text-3xl md:text-5xl gold-gradient-text mb-6">Harapan Terbaikku</h2>
+            <p id="closing-text" class="font-serif-custom text-gray-200 text-lg italic leading-relaxed min-h-[100px]"></p>
+        </div>
+    </section>
+
+    <script>
+        const RELATIONSHIP_START_DATE = new Date("2023-01-01T00:00:00"); 
+
+        // Sistem Partikel
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+
+        class Particle {
+            constructor(x, y, isButterfly = false) {
+                this.x = x; this.y = y; this.isButterfly = isButterfly;
+                this.size = isButterfly ? Math.random() * 8 + 6 : Math.random() * 3 + 1;
+                this.speedX = (Math.random() - 0.5) * (isButterfly ? 6 : 10);
+                this.speedY = (Math.random() - 0.5) * (isButterfly ? 6 : 10) - (isButterfly ? 2 : 0);
+                this.life = 1.0; this.decay = Math.random() * 0.02 + 0.01;
+                this.angle = Math.random() * Math.PI * 2; this.spin = (Math.random() - 0.5) * 0.2;
+                this.flapPhase = Math.random() * Math.PI; this.flapSpeed = Math.random() * 0.2 + 0.2;
+            }
+            update() { this.x+=this.speedX; this.y+=this.speedY; this.life-=this.decay; this.angle+=this.spin; this.flapPhase+=this.flapSpeed; }
+            draw() {
+                ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle); ctx.globalAlpha = Math.max(0, this.life);
+                if (this.isButterfly) {
+                    ctx.fillStyle = '#FFD700'; ctx.shadowBlur = 10; ctx.shadowColor = '#D4AF37';
+                    let scale = Math.abs(Math.sin(this.flapPhase));
+                    ctx.save(); ctx.scale(scale, 1); ctx.beginPath(); ctx.ellipse(-this.size/2, 0, this.size/2, this.size, Math.PI/6, 0, Math.PI*2); ctx.fill(); ctx.restore();
+                    ctx.save(); ctx.scale(scale, 1); ctx.beginPath(); ctx.ellipse(this.size/2, 0, this.size/2, this.size, -Math.PI/6, 0, Math.PI*2); ctx.fill(); ctx.restore();
+                } else {
+                    ctx.fillStyle = '#FFF8DC'; ctx.shadowBlur = 8; ctx.shadowColor = '#FFD700';
+                    ctx.beginPath(); ctx.arc(0, 0, this.size, 0, Math.PI * 2); ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+        function createExplosion(x, y, count, isB) { for(let i=0; i<count; i++) particles.push(new Particle(x, y, isB)); }
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            for(let i=particles.length-1; i>=0; i--) { particles[i].update(); particles[i].draw(); if(particles[i].life<=0) particles.splice(i, 1); }
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        const bgm = document.getElementById('bgm');
+        let isPlaying = false;
+        function toggleMusic() { if(isPlaying){ bgm.pause(); document.getElementById('music-icon').className="fas fa-music"; } else { bgm.play(); document.getElementById('music-icon').className="fas fa-pause text-amber-300"; } isPlaying = !isPlaying; }
+
+        function startIntro() {
+            const btn = document.getElementById('intro-butterfly'); const rect = btn.getBoundingClientRect();
+            bgm.play().then(()=>{ isPlaying = true; document.getElementById('music-control').classList.remove('hidden'); document.getElementById('music-icon').className="fas fa-pause text-amber-300"; }).catch(e=>console.log(e));
+            createExplosion(rect.left + rect.width/2, rect.top + rect.height/2, 150, false);
+            btn.style.display = 'none';
+            gsap.to('#intro-screen', { opacity: 0, duration: 1.5, onComplete: () => {
+                document.getElementById('intro-screen').classList.add('hidden');
+                document.getElementById('main-screen').classList.remove('hidden');
+                loadMediaItems(); // Ambil dari SQL
+                gsap.from('#main-screen', { opacity: 0, y: 30, duration: 1 }); window.scrollTo(0, 0);
+            }});
+        }
+
+        setInterval(() => {
+            const diff = new Date() - RELATIONSHIP_START_DATE;
+            document.getElementById('counter-days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById('counter-hours').innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            document.getElementById('counter-minutes').innerText = Math.floor((diff / (1000 * 60)) % 60);
+            document.getElementById('counter-seconds').innerText = Math.floor((diff / 1000) % 60);
+        }, 1000);
+
+        // ==============================================================
+        // KONEKSI API KE DATABASE SQLITE 
+        // ==============================================================
+        let mediaItems = [];
+        let tempSelectedFile = null;
+
+        async function loadMediaItems() {
+            try {
+                const response = await fetch('/api/media');
+                mediaItems = await response.json();
+                renderGallery();
+            } catch (err) {
+                console.error("Gagal memuat galeri dari SQL:", err);
+            }
+        }
+
+        function handleFileSelect(e) {
+            tempSelectedFile = e.target.files[0]; if(!tempSelectedFile) return;
+            document.getElementById('file-name-preview').innerText = "Terpilih: " + tempSelectedFile.name;
+            document.getElementById('upload-details').classList.remove('hidden');
+        }
+
+        function saveMediaToGallery() {
+            if(!tempSelectedFile) return;
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const payload = {
+                    url: e.target.result,
+                    title: document.getElementById('media-title').value.trim() || "Kenangan Baru",
+                    desc: document.getElementById('media-desc').value.trim() || "Momen spesial kita.",
+                    isVideo: tempSelectedFile.type.startsWith('video')
+                };
+
+                try {
+                    const response = await fetch('/api/media', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) {
+                        document.getElementById('upload-details').classList.add('hidden'); 
+                        tempSelectedFile = null;
+                        document.getElementById('media-file').value = '';
+                        document.getElementById('media-title').value = '';
+                        document.getElementById('media-desc').value = '';
+                        const rect = document.getElementById('media-grid').getBoundingClientRect();
+                        createExplosion(rect.left + rect.width/2, rect.top, 30, false);
+                        loadMediaItems(); 
+                    }
+                } catch (err) { alert("Gagal mengunggah ke SQL Server."); }
+            };
+            reader.readAsDataURL(tempSelectedFile);
+        }
+
+        function renderGallery() {
+            const grid = document.getElementById('media-grid'); grid.innerHTML = '';
+            if (mediaItems.length === 0) {
+                grid.innerHTML = '<p class="text-gray-500 text-center w-full col-span-3 italic mt-4">Belum ada kenangan. Upload foto pertama kalian!</p>';
+                return;
+            }
+            mediaItems.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = "glass-card p-3 rounded-2xl flex flex-col group relative overflow-hidden";
+                let mediaTag = item.isVideo ? `<video src="${item.url}" controls class="w-full h-full object-cover rounded-xl"></video>` : `<img src="${item.url}" alt="${item.title}" class="w-full h-full object-cover rounded-xl group-hover:scale-110 transition-transform duration-500">`;
+                card.innerHTML = `
+                    <div class="aspect-square bg-neutral-900 rounded-xl mb-4 overflow-hidden relative">${mediaTag}</div>
+                    <div class="px-2 pb-2">
+                        <h4 class="font-cinzel text-amber-300 text-lg mb-1">${item.title}</h4>
+                        <p class="text-xs text-gray-400 leading-relaxed">${item.desc}</p>
+                    </div>
+                    <div class="absolute top-5 right-5 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="deleteMedia(${item.id})" class="bg-black/70 hover:bg-red-600/90 text-red-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-full border border-red-500/30 text-sm"><i class="fas fa-trash"></i></button>
+                    </div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        async function deleteMedia(id) {
+            if(confirm('Hapus kenangan ini dari Database?')) {
+                try {
+                    await fetch(`/api/media/${id}`, { method: 'DELETE' });
+                    loadMediaItems(); 
+                    const rect = document.getElementById('media-grid').getBoundingClientRect(); 
+                    createExplosion(rect.left + rect.width/2, rect.top + 100, 40, false);
+                } catch (err) { alert("Gagal menghapus data dari SQL."); }
+            }
+        }
+
+        let trailInterval;
+        function startClosingTransition() {
+            const butterfly = document.getElementById('closing-butterfly');
+            gsap.to(butterfly, {
+                y: -window.innerHeight / 2 + 100, scale: 1.5, duration: 2, ease: "power2.inOut",
+                onStart: () => { trailInterval = setInterval(() => { const rect = butterfly.getBoundingClientRect(); createExplosion(rect.left + rect.width/2, rect.top + rect.height, 2, false); }, 50); },
+                onComplete: () => {
+                    clearInterval(trailInterval); const rect = butterfly.getBoundingClientRect(); butterfly.style.display = 'none';
+                    createExplosion(rect.left + rect.width/2, rect.top + rect.height/2, 60, true);
+                    createExplosion(rect.left + rect.width/2, rect.top + rect.height/2, 100, false);
+                    gsap.to('#main-screen', { opacity: 0, duration: 1, delay: 0.5 });
+                    setTimeout(() => { document.getElementById('main-screen').classList.add('hidden'); document.getElementById('closing-screen').classList.remove('hidden'); typeClosingText(); }, 1500);
+                }
+            });
+        }
+        function typeClosingText() {
+            const msg = " Terima kasih sudah menjadi bab paling indah dalam hidupku. Semoga setiap hembusan angin membawa kebahagiaan untukmu, dan setiap langkah ke depan selalu kita tempuh bersama—bergandengan tangan, selamanya..";
+            const el = document.getElementById('closing-text'); let i = 0;
+            function type() { if(i < msg.length) { el.innerHTML += msg.charAt(i); i++; setTimeout(type, 40); } }
+            type();
+        }
+    </script>
+</body>
+</html>
