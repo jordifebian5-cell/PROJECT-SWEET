@@ -26,12 +26,16 @@
         .file-upload-label { display: flex; align-items: center; justify-content: center; border: 2px dashed rgba(212, 175, 55, 0.5); background: rgba(0,0,0,0.5); border-radius: 1rem; padding: 20px; cursor: pointer; transition: all 0.3s; }
         .file-upload-label:hover { border-color: #FFD700; background: rgba(212, 175, 55, 0.1); }
         ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #030204; } ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+        
+        /* Modal Popup Lightbox Style */
+        #mediaModal { display: none; }
+        #mediaModal.flex { display: flex; }
     </style>
 </head>
 <body>
 
     <canvas id="particle-canvas"></canvas>
-    <audio id="bgm" loop preload="auto"><source src= mirrorball.mp3 type="audio/mpeg"></audio>
+    <audio id="bgm" loop preload="auto"><source src="mirrorball.mp3" type="audio/mpeg"></audio>
 
     <div id="music-control" class="fixed top-6 right-6 z-50 hidden">
         <button onclick="toggleMusic()" class="glass-card p-3 rounded-full text-amber-400 hover:text-amber-200 w-12 h-12"><i id="music-icon" class="fas fa-music text-lg"></i></button>
@@ -97,7 +101,7 @@
     </main>
 
     <!-- CLOSING SCREEN -->
-    <section id="closing-screen" class="hidden min-h-screen w-full relative z-20 flex items-center justify-center bg-[#030204] p-6 text-center">
+    <section id="closing-screen" class="hidden min-h-screen w-full relative z-25 flex items-center justify-center bg-[#030204] p-6 text-center">
         <div class="max-w-2xl glass-card p-8 md:p-12 rounded-3xl">
             <div class="text-amber-400 text-4xl mb-4"><i class="fas fa-infinity"></i></div>
             <h2 class="font-cinzel text-3xl md:text-5xl gold-gradient-text mb-6">Harapan Terbaikku</h2>
@@ -105,10 +109,23 @@
         </div>
     </section>
 
+    <!-- MODAL POPUP LIGHTBOX -->
+    <div id="mediaModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md items-center justify-center p-4">
+        <div class="relative max-w-4xl w-full glass-card p-4 rounded-3xl flex flex-col items-center max-h-[90vh]">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl w-10 h-10 flex items-center justify-center bg-black/50 rounded-full border border-amber-500/30 z-10 cursor-pointer">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="modalContainer" class="w-full flex items-center justify-center overflow-hidden rounded-2xl max-h-[65vh] mb-4 bg-black/50"></div>
+            <div class="text-center px-2">
+                <h3 id="modalTitle" class="font-cinzel text-amber-300 text-xl md:text-2xl mb-1"></h3>
+                <p id="modalDesc" class="text-sm text-gray-300 italic"></p>
+            </div>
+        </div>
+    </div>
+
     <script>
         const RELATIONSHIP_START_DATE = new Date("2023-01-01T00:00:00"); 
 
-        // Sistem Partikel
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [];
@@ -160,7 +177,7 @@
             gsap.to('#intro-screen', { opacity: 0, duration: 1.5, onComplete: () => {
                 document.getElementById('intro-screen').classList.add('hidden');
                 document.getElementById('main-screen').classList.remove('hidden');
-                loadMediaItems(); // Ambil dari SQL
+                loadMediaItems(); 
                 gsap.from('#main-screen', { opacity: 0, y: 30, duration: 1 }); window.scrollTo(0, 0);
             }});
         }
@@ -173,9 +190,6 @@
             document.getElementById('counter-seconds').innerText = Math.floor((diff / 1000) % 60);
         }, 1000);
 
-        // ==============================================================
-        // KONEKSI API KE DATABASE SQLITE 
-        // ==============================================================
         let mediaItems = [];
         let tempSelectedFile = null;
 
@@ -222,7 +236,7 @@
                         createExplosion(rect.left + rect.width/2, rect.top, 30, false);
                         loadMediaItems(); 
                     }
-                } catch (err) { alert("Gagal mengunggah ke SQL Server."); }
+                } catch (err) { alert("Gagal mengunggah ke Railway Server."); }
             };
             reader.readAsDataURL(tempSelectedFile);
         }
@@ -236,9 +250,18 @@
             mediaItems.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = "glass-card p-3 rounded-2xl flex flex-col group relative overflow-hidden";
-                let mediaTag = item.isVideo ? `<video src="${item.url}" controls class="w-full h-full object-cover rounded-xl"></video>` : `<img src="${item.url}" alt="${item.title}" class="w-full h-full object-cover rounded-xl group-hover:scale-110 transition-transform duration-500">`;
+                
+                let mediaTag = item.isVideo 
+                    ? `<video src="${item.url}" class="w-full h-full object-cover rounded-xl pointer-events-none"></video>` 
+                    : `<img src="${item.url}" alt="${item.title}" class="w-full h-full object-cover rounded-xl group-hover:scale-110 transition-transform duration-500">`;
+                
                 card.innerHTML = `
-                    <div class="aspect-square bg-neutral-900 rounded-xl mb-4 overflow-hidden relative">${mediaTag}</div>
+                    <div class="aspect-square bg-neutral-900 rounded-xl mb-4 overflow-hidden relative cursor-pointer" onclick='openModal(${JSON.stringify(item.url)}, ${JSON.stringify(item.title)}, ${JSON.stringify(item.desc)}, ${item.isVideo})'>
+                        ${mediaTag}
+                        <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <i class="fas fa-search-plus text-amber-300 text-2xl drop-shadow-md"></i>
+                        </div>
+                    </div>
                     <div class="px-2 pb-2">
                         <h4 class="font-cinzel text-amber-300 text-lg mb-1">${item.title}</h4>
                         <p class="text-xs text-gray-400 leading-relaxed">${item.desc}</p>
@@ -250,6 +273,30 @@
             });
         }
 
+        // Fungsi Popup / Lightbox
+        function openModal(url, title, desc, isVideo) {
+            const modal = document.getElementById('mediaModal');
+            const container = document.getElementById('modalContainer');
+            container.innerHTML = isVideo 
+                ? `<video src="${url}" controls autoplay class="max-h-[65vh] w-auto object-contain rounded-xl"></video>`
+                : `<img src="${url}" alt="${title}" class="max-h-[65vh] w-auto object-contain rounded-xl">`;
+
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = desc;
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('mediaModal');
+            document.getElementById('modalContainer').innerHTML = ''; 
+            modal.classList.remove('flex');
+        }
+
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('mediaModal');
+            if (e.target === modal) closeModal();
+        });
+
         async function deleteMedia(id) {
             if(confirm('Hapus kenangan ini dari Database?')) {
                 try {
@@ -257,7 +304,7 @@
                     loadMediaItems(); 
                     const rect = document.getElementById('media-grid').getBoundingClientRect(); 
                     createExplosion(rect.left + rect.width/2, rect.top + 100, 40, false);
-                } catch (err) { alert("Gagal menghapus data dari SQL."); }
+                } catch (err) { alert("Gagal menghapus data."); }
             }
         }
 
